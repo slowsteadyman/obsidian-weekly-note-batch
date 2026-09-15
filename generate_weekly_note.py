@@ -10,6 +10,7 @@
 - 한 줄 띄우고 다음 태그 헤더를 넣는다
 - 태그 순서는 먼저 나온 것부터 차례대로
 - 한 불릿에 태그가 여러 개면 각 태그 섹션에 모두 중복해서 넣는다
+- 본문 최상위 불릿의 태그는 제거한다 (헤더에 이미 태그가 있으므로)
 
 의존성 없이 표준 라이브러리만 사용한다.
 """
@@ -33,6 +34,8 @@ AGGREGATE_DIR_FMT = "daily-notes/{year}-aggregate"   # 위클리노트 폴더
 
 # 태그: '#' 뒤 영숫자/밑줄로 시작, 이후 영숫자/밑줄/-// 허용
 TAG_RE = re.compile(r"#([A-Za-z0-9_][A-Za-z0-9_/-]*)")
+# 본문에서 태그 제거용: 앞쪽 공백까지 함께 지운다 (헤더에 이미 태그가 있으므로)
+TAG_STRIP_RE = re.compile(r"\s*#[A-Za-z0-9_][A-Za-z0-9_/-]*")
 # 최상위 불릿: 들여쓰기 없이 '- ' 로 시작
 TOP_BULLET_RE = re.compile(r"^- ")
 
@@ -70,6 +73,8 @@ def _extract_tags(first_line: str) -> list[str]:
 
 def _finalize(lines: list[str]) -> tuple[list[str], list[str]]:
     tags = _extract_tags(lines[0])
+    # 최상위 불릿(첫 줄)에서 태그 제거 — 헤더에 이미 태그가 표시되므로
+    lines[0] = TAG_STRIP_RE.sub("", lines[0]).rstrip()
     while lines and lines[-1].strip() == "":
         lines.pop()
     return tags, lines
