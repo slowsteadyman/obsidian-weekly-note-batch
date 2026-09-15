@@ -52,14 +52,14 @@ python3 generate_weekly_note.py --week 2026-09-10 --dry-run
 
 ## 자동 실행 등록 (launchd)
 
-`install.sh`가 plist 템플릿의 경로 플레이스홀더를 채워
+`install.sh`가 plist 템플릿의 플레이스홀더(파이썬/스크립트/볼트/로그 경로)를 채워
 `~/Library/LaunchAgents/` 에 설치하고 로드한다.
 
 ```bash
 # 등록 (매주 월요일 09:00 자동 실행)
-./install.sh "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
-# 또는
-OBSIDIAN_VAULT="/path/to/vault" ./install.sh
+# PYTHON: launchd가 쓸 파이썬. 경로가 안 바뀌는 것을 권장(아래 FDA 참고)
+PYTHON=/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12 \
+  ./install.sh "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
 
 # 등록 확인 / 즉시 한 번 실행(테스트)
 launchctl list | grep weekly-note
@@ -68,6 +68,18 @@ launchctl start com.obsidian.weekly-note
 # 해제
 ./uninstall.sh
 ```
+
+### ⚠️ 전체 디스크 접근 권한 (필수)
+
+macOS 개인정보 보호(TCC) 때문에, launchd로 도는 프로세스는 기본적으로
+`~/Desktop`·iCloud(`~/Library/Mobile Documents`) 폴더를 읽지 못한다.
+**시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근 권한**에
+`install.sh`에 넘긴 `PYTHON` 바이너리를 추가해야 한다. 이 권한이 없으면
+`Operation not permitted` 로 실패한다.
+
+> 파이썬을 업데이트해 경로가 바뀌면 권한을 다시 추가해야 하므로,
+> 패치 릴리스에도 경로가 안 바뀌는 파이썬(예: python.org 프레임워크
+> `.../Versions/3.12/bin/python3.12`)을 쓰는 것이 좋다.
 
 > 예약 시각(월 09:00)에 Mac이 꺼져 있거나 잠들어 있었다면, launchd가 다음에
 > 깨어날 때 놓친 작업을 한 번 실행한다.

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  launchd 설정 템플릿. 아래 3개의 플레이스홀더를 실제 절대경로로 바꾼 뒤
-  ~/Library/LaunchAgents/ 에 복사해 사용한다 (README 참고).
+  launchd 설정 템플릿. 아래 플레이스홀더를 실제 절대경로로 바꾼 뒤
+  ~/Library/LaunchAgents/ 에 복사해 사용한다 (install.sh 가 처리함).
+    __PYTHON__      : 파이썬 인터프리터의 절대경로
     __SCRIPT_PATH__ : generate_weekly_note.py 의 절대경로
     __VAULT_PATH__  : Obsidian 볼트의 절대경로
     __LOG_DIR__     : 로그를 남길 폴더의 절대경로
@@ -14,7 +15,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/bin/python3</string>
+        <string>__PYTHON__</string>
         <string>__SCRIPT_PATH__</string>
     </array>
 
