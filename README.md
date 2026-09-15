@@ -21,6 +21,7 @@
 |---|---|
 | `generate_weekly_note.py` | 생성 스크립트 (표준 라이브러리만 사용) |
 | `com.obsidian.weekly-note.plist` | launchd 설정 **템플릿** (경로 플레이스홀더 포함) |
+| `install.sh` / `uninstall.sh` | launchd 자동 실행 등록/해제 |
 
 ## 볼트 경로 지정
 
@@ -51,26 +52,21 @@ python3 generate_weekly_note.py --week 2026-09-10 --dry-run
 
 ## 자동 실행 등록 (launchd)
 
-템플릿의 플레이스홀더를 실제 절대경로로 채워 개인용 plist를 만든 뒤 등록한다.
-채운 파일은 `*.local.plist`로 저장하면 git에 커밋되지 않는다.
+`install.sh`가 plist 템플릿의 경로 플레이스홀더를 채워
+`~/Library/LaunchAgents/` 에 설치하고 로드한다.
 
 ```bash
-DIR="$(pwd)"
-VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
-mkdir -p "$DIR/logs"
+# 등록 (매주 월요일 09:00 자동 실행)
+./install.sh "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
+# 또는
+OBSIDIAN_VAULT="/path/to/vault" ./install.sh
 
-sed -e "s|__SCRIPT_PATH__|$DIR/generate_weekly_note.py|" \
-    -e "s|__VAULT_PATH__|$VAULT|" \
-    -e "s|__LOG_DIR__|$DIR/logs|" \
-    com.obsidian.weekly-note.plist > com.obsidian.weekly-note.local.plist
-
-cp com.obsidian.weekly-note.local.plist ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
-launchctl load ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
-
-# 등록 확인 / 즉시 실행 / 해제
+# 등록 확인 / 즉시 한 번 실행(테스트)
 launchctl list | grep weekly-note
 launchctl start com.obsidian.weekly-note
-launchctl unload ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
+
+# 해제
+./uninstall.sh
 ```
 
 > 예약 시각(월 09:00)에 Mac이 꺼져 있거나 잠들어 있었다면, launchd가 다음에
