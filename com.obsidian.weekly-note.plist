@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd 설정 템플릿. 아래 3개의 플레이스홀더를 실제 절대경로로 바꾼 뒤
+  ~/Library/LaunchAgents/ 에 복사해 사용한다 (README 참고).
+    __SCRIPT_PATH__ : generate_weekly_note.py 의 절대경로
+    __VAULT_PATH__  : Obsidian 볼트의 절대경로
+    __LOG_DIR__     : 로그를 남길 폴더의 절대경로
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.obsidian.weekly-note</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>__SCRIPT_PATH__</string>
+    </array>
+
+    <!-- 볼트 경로는 환경변수로 전달 -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>OBSIDIAN_VAULT</key>
+        <string>__VAULT_PATH__</string>
+    </dict>
+
+    <!-- 매주 월요일 09:00 실행 (Weekday: 0/7=일, 1=월) -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>__LOG_DIR__/weekly-note.log</string>
+    <key>StandardErrorPath</key>
+    <string>__LOG_DIR__/weekly-note.err.log</string>
+</dict>
+</plist>

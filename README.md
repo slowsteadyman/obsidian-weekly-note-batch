@@ -1,0 +1,77 @@
+# 위클리노트 자동 생성 배치
+
+매주 월요일, 지난주(직전 월~일)의 데일리노트를 읽어 태그별로 묶은 위클리노트를
+`daily-notes/{year}-aggregate/` 폴더에 자동 생성한다.
+
+## 동작 규칙
+
+`obsidian/weekly-note-convention.md` + 협의 사항에 따른다.
+
+- 태그 하나당 `## #태그` H2 헤더 (태그 그대로 표기)
+- 헤더 아래 한 줄 띄우고, 그 태그에 속한 데일리노트 내용을 불릿으로 나열
+- 태그 순서는 그 주에 **처음 등장한 순서**
+- 한 불릿에 태그가 여러 개면 **각 태그 섹션에 모두 중복** 삽입
+- 최상위 불릿 + 하위 불릿은 원문 그대로 보존
+- 파일명: `{ISO연도}-W{ISO주차}.md` (예: `2026-W37.md`)
+- frontmatter는 `templates/weekly-note.md`를 사용하며 `{{date}} {{time}}`을 실행 시각으로 채움
+
+## 파일
+
+| 파일 | 설명 |
+|---|---|
+| `generate_weekly_note.py` | 생성 스크립트 (표준 라이브러리만 사용) |
+| `com.obsidian.weekly-note.plist` | launchd 설정 **템플릿** (경로 플레이스홀더 포함) |
+
+## 볼트 경로 지정
+
+개인 경로를 코드에 넣지 않는다. 볼트 경로는 `--vault` 인자나 `OBSIDIAN_VAULT`
+환경변수로 지정한다.
+
+```bash
+export OBSIDIAN_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
+```
+
+## 수동 실행
+
+```bash
+# 지난주 위클리노트 생성 (배치가 매주 월요일 실행하는 것과 동일)
+python3 generate_weekly_note.py --vault "$OBSIDIAN_VAULT"
+
+# 특정 날짜가 '속한 주'의 위클리노트 생성 (지난주가 아니라 그 주)
+python3 generate_weekly_note.py --week 2026-09-10   # -> 2026-09-07~09-13 (W37)
+
+# 특정 날짜를 실행일로 시뮬레이션 (그 날 기준 '지난주'가 대상)
+python3 generate_weekly_note.py --run-date 2026-09-14
+
+# 파일을 쓰지 않고 결과만 미리보기 (아무 옵션과 조합 가능)
+python3 generate_weekly_note.py --week 2026-09-10 --dry-run
+```
+
+(`OBSIDIAN_VAULT`를 export 해뒀다면 `--vault`는 생략 가능.)
+
+## 자동 실행 등록 (launchd)
+
+템플릿의 플레이스홀더를 실제 절대경로로 채워 개인용 plist를 만든 뒤 등록한다.
+채운 파일은 `*.local.plist`로 저장하면 git에 커밋되지 않는다.
+
+```bash
+DIR="$(pwd)"
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/<볼트이름>"
+mkdir -p "$DIR/logs"
+
+sed -e "s|__SCRIPT_PATH__|$DIR/generate_weekly_note.py|" \
+    -e "s|__VAULT_PATH__|$VAULT|" \
+    -e "s|__LOG_DIR__|$DIR/logs|" \
+    com.obsidian.weekly-note.plist > com.obsidian.weekly-note.local.plist
+
+cp com.obsidian.weekly-note.local.plist ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
+launchctl load ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
+
+# 등록 확인 / 즉시 실행 / 해제
+launchctl list | grep weekly-note
+launchctl start com.obsidian.weekly-note
+launchctl unload ~/Library/LaunchAgents/com.obsidian.weekly-note.plist
+```
+
+> 예약 시각(월 09:00)에 Mac이 꺼져 있거나 잠들어 있었다면, launchd가 다음에
+> 깨어날 때 놓친 작업을 한 번 실행한다.

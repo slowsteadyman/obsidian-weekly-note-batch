@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+logs/
+.DS_Store
+# 실제 경로가 채워진 개인용 plist (템플릿만 커밋)
+*.local.plist
