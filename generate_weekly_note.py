@@ -41,10 +41,10 @@ AGGREGATE_DIR_FMT = "daily-notes/{year}-aggregate"   # 위클리노트 폴더
 CREATED_NOTES_HEADER = "만든 노트"
 NO_TAG_HEADER = "태그없음"
 
-# 태그: '#' 뒤 영숫자/밑줄로 시작, 이후 영숫자/밑줄/-// 허용
-TAG_RE = re.compile(r"#([A-Za-z0-9_][A-Za-z0-9_/-]*)")
+# 태그: '#' 뒤 유니코드 word 문자(한글 포함)로 시작, 이후 word/-// 허용
+TAG_RE = re.compile(r"#(\w[\w/-]*)")
 # 본문에서 태그 제거용: 앞쪽 공백까지 함께 지운다 (헤더에 이미 태그가 있으므로)
-TAG_STRIP_RE = re.compile(r"\s*#[A-Za-z0-9_][A-Za-z0-9_/-]*")
+TAG_STRIP_RE = re.compile(r"\s*#\w[\w/-]*")
 # 최상위 불릿: 들여쓰기 없이 '- ' 로 시작
 TOP_BULLET_RE = re.compile(r"^- ")
 # H2 섹션 헤더
