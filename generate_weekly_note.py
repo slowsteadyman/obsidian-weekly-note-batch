@@ -5,7 +5,7 @@
 태그별로 묶은 위클리노트를 daily-notes/{year}-aggregate/ 에 생성한다.
 
 규칙 (obsidian/weekly-note-convention.md):
-- `## 만든 노트` 헤더로 시작. 각 데일리노트의 `## 만든 노트` 섹션 불릿을
+- `## notes` 헤더로 시작. 각 데일리노트의 `## notes` 섹션 불릿을
   날짜순으로 모아 붙이고, 노트명(위키링크) 기준 중복을 제거한다.
   그 주에 만든 노트가 없으면 헤더만 두고 한 줄 띄워 다음 섹션으로 넘어간다.
 - 태그 하나당 H2 헤더 하나를 만든다 (## #tag, 태그 그대로 표기)
@@ -15,7 +15,7 @@
 - 한 불릿에 태그가 여러 개면 각 태그 섹션에 모두 중복해서 넣는다
 - 본문 최상위 불릿의 태그는 제거한다 (헤더에 이미 태그가 있으므로)
 - 태그가 없는 최상위 불릿은 맨 아래 `## #태그없음` 섹션에 모아 넣는다
-- `## 만든 노트`가 아닌 다른 H2 섹션(예: `## 보고 느낀 것`)의 불릿만 태그
+- `## notes`가 아닌 다른 H2 섹션(예: `## journal`)의 불릿만 태그
   집계 대상이다. 헤더가 없는(구버전) 데일리노트는 본문 전체가 집계 대상이다.
 
 의존성 없이 표준 라이브러리만 사용한다.
@@ -38,7 +38,7 @@ TEMPLATE_REL = "templates/new-note-quartz.md"
 DAILY_DIR_FMT = "daily-notes/{year}"                 # 데일리노트 폴더 (연도별)
 AGGREGATE_DIR_FMT = "daily-notes/{year}-aggregate"   # 위클리노트 폴더
 
-CREATED_NOTES_HEADER = "만든 노트"
+CREATED_NOTES_HEADER = "notes"
 NO_TAG_HEADER = "태그없음"
 
 # 태그: '#' 뒤 유니코드 word 문자(한글 포함)로 시작, 이후 word/-// 허용
